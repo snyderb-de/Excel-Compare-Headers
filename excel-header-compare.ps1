@@ -1,11 +1,8 @@
-# Comapre headers from selected Excel Files
-# TODO: add a block to unhide all columns in each file before comparing headers
-
 # Prompt user for files to compare
 Add-Type -AssemblyName System.Windows.Forms
 $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
 $openFileDialog.Multiselect = $true
-$openFileDialog.Filter = "Excel Files (*.xlsx)|*.xlsx"
+$openFileDialog.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.xlsb)|*.xls;*.xlsx;*.xlsm;*.xlsb"
 $dialogResult = $openFileDialog.ShowDialog()
 
 if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
