@@ -1,8 +1,8 @@
-# Prompt user for base file
+﻿# Prompt user for base file
 Add-Type -AssemblyName System.Windows.Forms
 $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
 $openFileDialog.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.xlsb)|*.xls;*.xlsx;*.xlsm;*.xlsb"
-$openFileDialog.Title = "Select the base file with correct headers"
+$openFileDialog.Title = "Please choose the base file with the correct headers"
 $dialogResult = $openFileDialog.ShowDialog()
 
 if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
@@ -10,8 +10,8 @@ if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
 
     # Prompt user for files to compare
     $openFileDialog.Multiselect = $true
-    $openFileDialog.Title = "Select all the files to compare to the base file"
     $openFileDialog.FileName = ""
+    $openFileDialog.Title = "Select all the files to compare to the base file"
     $dialogResult = $openFileDialog.ShowDialog()
 
     if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
@@ -34,10 +34,14 @@ if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
             $header = $base_ws.Cells.Item(1, $i).Value()
             $column_letter = [char](64 + $i)
             $output.Add("$column_letter`t$header")
+            $base_headers += $header
         }
         $base_wb.Close()
+        }
+        }
 
         # Compare headers from other files to headers from base file
+        $all_match = $true
         foreach ($file in $compare_files) {
             $df = New-Object -ComObject Excel.Application
             $wb = $df.Workbooks.Open($file)
@@ -53,6 +57,7 @@ if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
                 $output.Add("$column_letter`t$header")
             }
             if ($headers -ne $base_headers) {
+                $all_match = $false
                 $output.Add("")
                 $output.Add("$file Headers that do not match Base File")
                 $output.Add("Column Letter`tHeader Value")
@@ -69,11 +74,3 @@ if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
 
         # Write results to text file
         $output | Out-File -FilePath $output_file
-
-        Write-Host "Results written to $output_file."
-    } else {
-        Write-Host "No files selected for comparison."
-    }
-} else {
-    Write-Host "No base file selected."
-}
